@@ -1,60 +1,85 @@
-package com.dicoding.pneumuvision.ui.home
+package com.example.test.ui.home
 
+import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.dicoding.pneumuvision.R
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import com.example.myapplication.ViewModelFactory
+import com.example.myapplication.databinding.FragmentHomeBinding
+import com.example.myapplication.ui.home.HomeViewModel
+import com.example.myapplication.ui.main.MainViewModel
+import com.example.myapplication.ui.profil.EditActivity
+import com.example.myapplication.ui.welcome.WelcomeActivity
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [HomeFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class HomeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel by viewModels<MainViewModel> {
+        ViewModelFactory.getInstance(requireContext())
+    }
+
+    private var token = "token"
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        val homeViewModel =
+            ViewModelProvider(this).get(HomeViewModel::class.java)
+
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        val root: View = binding.root
+        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.historyCardView.setOnClickListener{
+            val intent = Intent(requireContext(), EditActivity::class.java)
+            startActivity(intent)
+        }
+
+        viewModel.getSession().observe(viewLifecycleOwner) { user ->
+            if (!user.isLogin) {
+                val intent = Intent(requireContext(), WelcomeActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(intent)
+                activity?.finish()
+            } else {
+                val mainViewModel = obtainViewModel()
+
+                token = user.token
+                Log.d(ContentValues.TAG, "token: $token")
+                binding.tvName.text = user.name
+
+                // Uncomment and implement these lines if you need story data
+                // mainViewModel.getStory(token)
+                // mainViewModel.story.observe(viewLifecycleOwner) { storyList ->
+                //     Log.d(ContentValues.TAG, "Story: $storyList")
+                //     setStoryData(storyList)
+                // }
+            }
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false)
+    private fun obtainViewModel(): MainViewModel {
+        val factory = ViewModelFactory.getInstance(requireActivity().application)
+        return ViewModelProvider(requireActivity(), factory)[MainViewModel::class.java]
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment HomeFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            HomeFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
