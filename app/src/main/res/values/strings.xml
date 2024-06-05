@@ -57,7 +57,7 @@
     <string name="send_message_button">Send Message</string>
     <string name="title_profile">Profile\n</string>
     <string name="fullname">nama lengkap</string>
-<!--    <string name="username">fullname</string>-->
+    <!--    <string name="username">fullname</string>-->
     <string name="title_sharingpage">menu sharing</string>
     <string name="title_history">History\n</string>
     <string name="title_scan">X-Ray Scan</string>

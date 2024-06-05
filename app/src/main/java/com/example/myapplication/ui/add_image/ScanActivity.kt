@@ -26,8 +26,10 @@ import com.example.myapplication.retrofit.ApiConfig
 import com.example.myapplication.ui.welcome.WelcomeActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
+import okhttp3.Response
 
 class ScanActivity : AppCompatActivity() {
 
@@ -43,7 +45,7 @@ class ScanActivity : AppCompatActivity() {
         binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //supportActionBar?.title = "Add Your Story"
+        supportActionBar?.title = "Add Your Story"
 
         if (!PermissionsGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)

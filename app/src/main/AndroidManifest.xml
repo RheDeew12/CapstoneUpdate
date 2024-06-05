@@ -14,8 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
-
-
+        <activity
+            android:name=".ui.detail.DetailActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.welcome.WelcomeActivity"
             android:exported="false" />
@@ -31,7 +32,8 @@
         <activity
             android:name=".ui.profil.ProfileFragment"
             android:exported="false" />
-        <activity android:name=".ui.profil.EditActivity"
+        <activity
+            android:name=".ui.profil.EditActivity"
             android:exported="false" />
         <activity
             android:name=".ui.main.MainActivity"
