@@ -2,6 +2,7 @@ package com.example.myapplication.paging
 
 import android.content.ContentValues
 import android.util.Log
+import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.myapplication.response.ListStoryItem
 import com.example.myapplication.response.StoryResponse
@@ -24,12 +25,13 @@ class PagingSource(private val token: String) : PagingSource<Int, ListStoryItem>
             anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
         }
     }
-    override suspend fun load(params: androidx.paging.PagingSource.LoadParams<Int>): androidx.paging.PagingSource.LoadResult<Int, ListStoryItem> {
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ListStoryItem> {
         try {
-            val position = params.key ?: 1
+            val position = params.key ?: INITIAL_PAGE_INDEX
             return suspendCancellableCoroutine { continuation ->
                 Log.d(ContentValues.TAG, "tokenPagingSource: $token")
-                val client = ApiConfig.getApiService().getStories("Bearer $token",position, params.loadSize)
+                val client = ApiConfig.getApiService().getStories("Bearer $token", position, params.loadSize)
                 client.enqueue(object : Callback<StoryResponse> {
                     override fun onResponse(
                         call: Call<StoryResponse>,
@@ -39,13 +41,12 @@ class PagingSource(private val token: String) : PagingSource<Int, ListStoryItem>
                             val storyList: List<ListStoryItem> = response.body()?.listStory ?: emptyList()
                             Log.d(ContentValues.TAG, "pagingSource: $storyList")
 
-                            val page = androidx.paging.PagingSource.LoadResult.Page(
+                            val page = LoadResult.Page(
                                 data = storyList,
                                 prevKey = if (position == INITIAL_PAGE_INDEX) null else position - 1,
                                 nextKey = if (storyList.isEmpty()) null else position + 1
                             )
                             continuation.resume(page)
-
                         } else {
                             Log.e(ContentValues.TAG, "onFailure1: ${response.message()}")
                             continuation.resumeWithException(Exception("Failed to load data"))
@@ -59,8 +60,7 @@ class PagingSource(private val token: String) : PagingSource<Int, ListStoryItem>
                 })
             }
         } catch (exception: Exception) {
-            return androidx.paging.PagingSource.LoadResult.Error(exception)
+            return LoadResult.Error(exception)
         }
-
     }
 }

@@ -20,8 +20,8 @@
 
   <ImageView
       android:id="@+id/imageView3"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
+      android:layout_width="412dp"
+      android:layout_height="679dp"
       android:layout_marginTop="196dp"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintHorizontal_bias="0.0"
@@ -41,6 +41,20 @@
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toTopOf="parent" />
+
+  <TextView
+      android:id="@+id/textView4"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:text="Selamat Datang di aplikasi PneumoVision \n Silahkan Login jika anda sudah memiliki akun dan silahkan Sign Up jika anda belum memiliki akun"
+      android:textColor="#FFFFFF"
+      android:textStyle="bold"
+      android:textSize="16sp"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.0"
+      app:layout_constraintStart_toStartOf="parent"
+      tools:layout_editor_absoluteY="480dp" />
 
   <Button
       android:id="@+id/bt_login"

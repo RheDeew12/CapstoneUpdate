@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.dicoding.pneumuvision.adapter.ListHistoryAdapter
 import com.dicoding.pneumuvision.response.LungsResponse
 import com.example.myapplication.R
+import com.example.myapplication.ui.adapter.ListHistoryAdapter
 
 class HistoryFragment : Fragment() {
 

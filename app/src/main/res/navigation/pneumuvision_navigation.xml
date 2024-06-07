@@ -7,25 +7,19 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.dicoding.pneumuvision.ui.home.HomeFragment"
+        android:name="com.example.test.ui.home.HomeFragment"
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_history"
-        android:name="com.dicoding.pneumuvision.ui.history.HistoryFragment"
+        android:name="com.example.myapplication.ui.history.HistoryFragment"
         android:label="@string/title_history"
         tools:layout="@layout/fragment_history" />
 
     <fragment
-        android:id="@+id/navigation_sharingpage"
-        android:name="com.dicoding.pneumuvision.ui.email.DiscussFragment"
-        android:label="@string/title_sharingpage"
-        tools:layout="@layout/fragment_discuss" />
-
-    <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.dicoding.pneumuvision.ui.profil.ProfileFragment"
-        android:label="@string/title_sharingpage"
+        android:name="com.example.myapplication.ui.profil.ProfileFragment"
+        android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
 </navigation>
