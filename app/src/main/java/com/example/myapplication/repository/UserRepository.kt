@@ -6,10 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.liveData
 import com.example.myapplication.paging.PagingSource
 import com.example.myapplication.preference.UserModel
-import com.example.myapplication.preference.UserPreference
 import com.example.myapplication.response.ListStoryItem
+import com.example.test.data.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
 
 class UserRepository private constructor(

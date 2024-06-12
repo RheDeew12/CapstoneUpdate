@@ -66,4 +66,14 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="description">deskripsi</string>
     <string name="retry">Retry</string>
+    <string name="emptyImage">Pilih Gambar Terlebih Dahulu.\n</string>
+    <string name="emptyFields">Isikan data dengan benar terlebih dahulu\n</string>
+
+    <string-array name="data_description">klasifikasi penyakit</string-array>
+    <string-array name="data_name">nama penyakit</string-array>
+    <string-array name="data_photo">image</string-array>
+    <string-array name="gender_array">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 </resources>

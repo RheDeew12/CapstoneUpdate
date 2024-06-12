@@ -5,47 +5,54 @@ import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.net.http.HttpException
 import android.os.Bundle
-import android.telecom.Call
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
 import com.example.myapplication.ViewModelFactory
 import com.example.myapplication.databinding.ActivityScanBinding
-import com.example.myapplication.ui.main.MainActivity
+import com.example.myapplication.response.ErrorResponse
+import com.example.myapplication.response.FileAddResponse
 import com.example.myapplication.retrofit.ApiConfig
+import com.example.myapplication.ui.main.MainActivity
 import com.example.myapplication.ui.welcome.WelcomeActivity
+import com.example.test.data.util.reduceFileImage
+import com.example.test.data.util.uriToFile
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
-import okhttp3.Response
+import okhttp3.RequestBody.Companion.asRequestBody
+import retrofit2.HttpException
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ScanActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityScanBinding
     private val viewModel by viewModels<ScanViewModel> {
-        ViewModelFactory.getInstance(this) //belon ada
+        ViewModelFactory.getInstance(this)
     }
     private var token = "token"
 
     private var currentImageUri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScanBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportActionBar?.title = "Add Your Story"
+        supportActionBar?.title = "Add Your Lungs"
 
         if (!PermissionsGranted()) {
             requestPermissionLauncher.launch(REQUIRED_PERMISSION)
@@ -60,6 +67,17 @@ class ScanActivity : AppCompatActivity() {
                 binding.btGallery.setOnClickListener { startGallery() }
                 binding.btUpload.setOnClickListener { uploadImage() }
             }
+        }
+
+        // Set up Spinner for gender
+        val genderSpinner: Spinner = findViewById(R.id.spinner_gender)
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.gender_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            genderSpinner.adapter = adapter
         }
     }
 
@@ -108,56 +126,64 @@ class ScanActivity : AppCompatActivity() {
             REQUIRED_PERMISSION
         ) == PackageManager.PERMISSION_GRANTED
 
-
-
     private fun uploadImage() {
         currentImageUri?.let { uri ->
             val imageFile = uriToFile(uri, this).reduceFileImage()
             Log.d("Image File", "showImage: ${imageFile.path}")
-            val description = binding.etDescription.text.toString()
+
+            val name = binding.edNamapasien.text.toString()
+            val age = binding.edAge.text.toString()
+            val gender = binding.spinnerGender.selectedItem.toString()
+
+            if (name.isEmpty() || age.isEmpty() || gender.isEmpty()) {
+                showToast(getString(R.string.emptyFields))
+                return
+            }
+
             showLoading(true)
 
-            val requestBody = description.toRequestBody("text/plain".toMediaType())
-            val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
-            val multipartBody = MultipartBody.Part.createFormData(
-                "photo",
-                imageFile.name,
-                requestImageFile
-            )
+            val requestBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("name", name)
+                .addFormDataPart("age", age)
+                .addFormDataPart("gender", gender)
+                .addFormDataPart("photo", imageFile.name, imageFile.asRequestBody("image/jpeg".toMediaType()))
+                .build()
 
             lifecycleScope.launch {
                 try {
                     val apiService = ApiConfig.getApiService()
-                    val successResponse = apiService.uploadImage("Bearer $token", multipartBody, requestBody)
-                    Log.d(ContentValues.TAG, "uploadImage token: $token")
-                    Log.d(ContentValues.TAG, "uploadImage: berhasil")
-                    showToast("Upload Successful")
+                    val response = apiService.uploadImage("Bearer $token", requestBody)
 
-                    successResponse.enqueue(object : Callback<FileUploadResponse> {
+                    response.enqueue(object : Callback<FileAddResponse> {
                         override fun onResponse(
-                            call: Call<FileUploadResponse>,
-                            response: Response<FileUploadResponse>
+                            call: Call<FileAddResponse>,
+                            response: Response<FileAddResponse>
                         ) {
-
+                            showLoading(false)
                             if (response.isSuccessful) {
                                 Log.e(ContentValues.TAG, "response Success: ${response.message()}")
+                                showToast("Upload Successful")
                                 backToMainActivity()
                             } else {
+                                val errorBody = response.errorBody()?.string()
+                                val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                                showToast(errorResponse.message.toString())
                                 Log.e(ContentValues.TAG, "add response gagal: ${response.message()}")
                             }
                         }
 
-                        override fun onFailure(call: Call<FileUploadResponse>, t: Throwable) {
-
+                        override fun onFailure(call: Call<FileAddResponse>, t: Throwable) {
+                            showLoading(false)
                             Log.e(ContentValues.TAG, "upload gagal: ${t.message.toString()}")
+                            showToast("Upload failed: ${t.message.toString()}")
                         }
                     })
-                    showLoading(false)
                 } catch (e: HttpException) {
-                    val errorBody = e.response()?.errorBody()?.string()
-                    val errorResponse = Gson().fromJson(errorBody, FileUploadResponse::class.java)
-                    showToast(errorResponse.message.toString())
                     showLoading(false)
+                    val errorBody = e.response()?.errorBody()?.string()
+                    val errorResponse = Gson().fromJson(errorBody, ErrorResponse::class.java)
+                    showToast(errorResponse.message.toString())
                 }
             }
         } ?: showToast(getString(R.string.emptyImage))
@@ -168,7 +194,7 @@ class ScanActivity : AppCompatActivity() {
     }
 
     private fun showLoading(isLoading: Boolean) {
-        binding.progressIndicator.visibility = if (isLoading) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     companion object {

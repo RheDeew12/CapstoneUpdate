@@ -2,7 +2,7 @@ package com.example.myapplication.response
 
 import com.google.gson.annotations.SerializedName
 
-data class AddResponse(
+data class FileAddResponse(
 
 	@field:SerializedName("error")
 	val error: Boolean? = null,

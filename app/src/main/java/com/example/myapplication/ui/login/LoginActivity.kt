@@ -62,7 +62,8 @@ class LoginActivity : AppCompatActivity() {
                     val token = apiService.login(email, password).loginResult?.token
                     showToast(successResponse)
 
-                    viewModel.saveSession(UserModel(email, token.toString()))
+                    viewModel.saveSession(UserModel(email, token.toString(), isLogin = true, name = "default_name"))
+
 //                    showLoading(false)
                     AlertDialog.Builder(this@LoginActivity).apply {
                         setTitle("Yeah!")

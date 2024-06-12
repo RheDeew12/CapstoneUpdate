@@ -23,8 +23,5 @@ class MainViewModel (private val repository: UserRepository) : ViewModel() {
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-//    fun getStory(token: String): LiveData<PagingData<ListStoryItem>> =
-//        repository.getStories(token).cachedIn(viewModelScope)
-
 
 }
